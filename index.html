@@ -93,118 +93,6 @@
       }
     }
 
-    /* ── 텍스트 수정 모드 UI ───────────────────────────────── */
-    #ed-toggle {
-      position: fixed;
-      right: 14px;
-      bottom: 14px;
-      z-index: 200;
-      font: 600 15px/1 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
-      background: #2b2320;
-      color: #fdf6ec;
-      border: none;
-      border-radius: 999px;
-      padding: 13px 18px;
-      cursor: pointer;
-      box-shadow: 0 6px 20px rgba(43, 35, 32, .3)
-    }
-
-    #ed-toggle:active {
-      transform: translateY(1px)
-    }
-
-    #ed-bar {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      z-index: 201;
-      display: none;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-      background: #2b2320;
-      color: #fdf6ec;
-      padding: 12px 14px;
-      font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
-      box-shadow: 0 -6px 20px rgba(43, 35, 32, .25)
-    }
-
-    #ed-bar b {
-      font-weight: 700;
-      color: #ffd166
-    }
-
-    #ed-bar button {
-      font: 600 14px/1 inherit;
-      border: none;
-      border-radius: 8px;
-      padding: 11px 14px;
-      cursor: pointer
-    }
-
-    #ed-bar .save {
-      background: #ffd166;
-      color: #2b2320
-    }
-
-    #ed-bar .cancel {
-      background: #4a3f38;
-      color: #fdf6ec
-    }
-
-    #ed-bar input[type=date] {
-      font: 14px/1 inherit;
-      border: none;
-      border-radius: 8px;
-      padding: 9px 10px;
-      background: #fdf6ec;
-      color: #2b2320
-    }
-
-    #ed-bar .hint {
-      flex: 1 1 100%;
-      color: #c9b79f;
-      font-size: 12.5px
-    }
-
-    body.editing #ed-bar {
-      display: flex
-    }
-
-    body.editing #ed-toggle {
-      display: none
-    }
-
-    body.editing {
-      padding-bottom: 220px
-    }
-
-    /* 좁은 폰에서 툴바가 두세 줄로 접혀도 글이 가려지지 않게 */
-    body.editing [data-edit] {
-      outline: 2px dashed #e0566b;
-      outline-offset: 4px;
-      border-radius: 4px;
-      cursor: text
-    }
-
-    body.editing [data-edit]:focus {
-      outline: 2px solid #e0566b;
-      background: rgba(255, 224, 138, .35)
-    }
-
-    body.editing [data-reveal] {
-      opacity: 1 !important;
-      transition: none !important
-    }
-
-    @media print {
-
-      #ed-toggle,
-      #ed-bar {
-        display: none !important
-      }
-    }
   </style>
 </head>
 
@@ -267,8 +155,7 @@
     </section>
 
     <!-- ══ 5. 함께한 날짜 카운터 ════════════════════════════
-       숫자는 아래 data-count-since 날짜부터 자동 계산됩니다.
-       (수정 모드 하단의 '함께한 날' 칸에서 바꿀 수 있습니다) -->
+       숫자는 아래 data-count-since 날짜부터 자동 계산됩니다. -->
     <section style="padding:70px 30px;background:#2b2320;color:#fdf6ec;text-align:center">
       <div data-edit="카운터-위" data-reveal="" style="font-size:24px;color:#c9b79f">days we've spent together</div>
       <div id="counter" data-count-since="2023-09-09"
@@ -387,24 +274,9 @@
     </section>
   </div>
 
-  <!-- ══ 텍스트 수정 모드 버튼/툴바 ═════════════════════════ -->
-  <button id="ed-toggle" type="button">✏️ 텍스트 수정</button>
-  <div id="ed-bar">
-    <b>수정 모드</b>
-    <span>점선 부분을 눌러 바로 고치세요</span>
-    <label>함께한 날 <input id="ed-since" type="date"></label>
-    <button class="save" type="button">💾 저장 (파일 받기)</button>
-    <button class="cancel" type="button">✕ 되돌리기</button>
-    <span class="hint">저장을 누르면 index.html 이 새로 다운로드됩니다. 다운로드된 파일을 이 폴더의 index.html 에 덮어쓰면 끝이에요.</span>
-  </div>
-
   <script>
     (function () {
       var root = document;
-
-      /* 편집 저장에 쓸 "손대지 않은" 원본 스냅샷.
-         아래 연출 코드가 DOM을 건드리기 전에 먼저 떠 둡니다. */
-      var PRISTINE = root.documentElement.outerHTML;
 
       root.querySelectorAll('[data-tilt]').forEach(function (el) {
         el.style.transform = 'rotate(' + el.getAttribute('data-tilt') + 'deg)';
@@ -502,7 +374,6 @@
 
       var blown = false;
       document.getElementById('cake').addEventListener('click', function () {
-        if (document.body.classList.contains('editing')) return; // 수정 중엔 폭죽 금지
         blown = !blown;
         root.querySelectorAll('[data-flame]').forEach(function (f) { f.style.display = blown ? 'none' : 'block'; });
         document.getElementById('wish').style.display = blown ? 'block' : 'none';
@@ -512,85 +383,6 @@
         }
       });
 
-      /* ── 텍스트 수정 모드 ─────────────────────────────────
-         [수정] 을 누르면 점선 친 글자를 화면에서 바로 고칠 수 있고,
-         [저장] 을 누르면 고친 내용이 반영된 index.html 이 다운로드됩니다. */
-
-      var toggle = document.getElementById('ed-toggle');
-      var edbar = document.getElementById('ed-bar');
-      var sinceIn = document.getElementById('ed-since');
-      var counter = document.getElementById('counter');
-      var fields = Array.prototype.slice.call(root.querySelectorAll('[data-edit]'));
-      var backup = null;   // 되돌리기용 (수정 시작 시점의 내용)
-
-      function enter() {
-        backup = fields.map(function (el) { return el.innerHTML; });
-        document.body.classList.add('editing');
-        sinceIn.value = counter.getAttribute('data-count-since') || '';
-        fields.forEach(function (el) {
-          el.setAttribute('contenteditable', 'true');
-          el.spellcheck = false;
-        });
-        // 소원 문구는 평소 숨겨져 있으니 수정 중에만 보여줍니다.
-        document.getElementById('wish').style.display = 'block';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-
-      function leave() {
-        document.body.classList.remove('editing');
-        fields.forEach(function (el) { el.removeAttribute('contenteditable'); });
-        document.getElementById('wish').style.display = blown ? 'block' : 'none';
-      }
-
-      toggle.addEventListener('click', enter);
-
-      edbar.querySelector('.cancel').addEventListener('click', function () {
-        if (backup) fields.forEach(function (el, i) { el.innerHTML = backup[i]; });
-        sinceIn.value = counter.getAttribute('data-count-since') || '';
-        leave();
-      });
-
-      // Enter = 줄바꿈(<br>), 붙여넣기 = 글자만 (서식 쓰레기 방지)
-      fields.forEach(function (el) {
-        el.addEventListener('keydown', function (e) {
-          if (e.key === 'Enter') { e.preventDefault(); document.execCommand('insertLineBreak'); }
-        });
-        el.addEventListener('paste', function (e) {
-          e.preventDefault();
-          var t = (e.clipboardData || window.clipboardData).getData('text');
-          document.execCommand('insertText', false, t);
-        });
-      });
-
-      edbar.querySelector('.save').addEventListener('click', function () {
-        // 연출로 더러워진 살아있는 DOM 대신, 원본 스냅샷에 바뀐 글자만 옮겨 담습니다.
-        var doc = new DOMParser().parseFromString(PRISTINE, 'text/html');
-        // 셀렉터 문자열을 만들지 않고 키로 직접 대응시킵니다(한글 키 이스케이프 문제 회피).
-        var targets = {};
-        doc.querySelectorAll('[data-edit]').forEach(function (n) {
-          targets[n.getAttribute('data-edit')] = n;
-        });
-        fields.forEach(function (el) {
-          var t = targets[el.getAttribute('data-edit')];
-          if (t) t.innerHTML = el.innerHTML;
-        });
-        var c = doc.getElementById('counter');
-        if (c && sinceIn.value) {
-          c.setAttribute('data-count-since', sinceIn.value);
-          counter.setAttribute('data-count-since', sinceIn.value);
-        }
-        doc.querySelectorAll('[contenteditable]').forEach(function (n) { n.removeAttribute('contenteditable'); });
-
-        var out = '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
-        var a = document.createElement('a');
-        a.href = URL.createObjectURL(new Blob([out], { type: 'text/html' }));
-        a.download = 'index.html';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
-        leave();
-      });
     })();
   </script>
 </body>
